@@ -1,0 +1,2 @@
+/* Exact original Drift Zone names from OTG! v8.0.259. Data only; no donor storage or navigation. */
+globalThis.TET2DriftZones=Object.freeze(["Punto Norte", "Panorámica", "Precipice", "Farmland Trail", "East Coast", "Las Dunas", "Cara Este", "Esquisto", "Costera", "Los Campos", "Las Curvas", "Giro Encorvado", "Ranchería", "Polytunnels", "Trailbreaker", "Hillside", "Otro Mundo", "Reservoir", "Arbolada", "Camino De Montaña"]);

@@ -1,0 +1,51 @@
+/* TET2 v0.18 — private independent manufacturer/mixed Relay engineering adapter.
+ * Genuine donor: rhEvil2Rules181.drawMakerRelay / drawMixedRelay / scoreThreeStages.
+ * New adapter: dedicated result entry, immutable seeded draws, per-event storage.
+ * Not full native OTG! Relay controller; final event formats/rules pending review.
+ */
+(()=>{'use strict';
+const reg=globalThis.TET2Registry, donor=globalThis.rhEvil2Rules181, $=id=>document.getElementById(id);
+const CATS=['ROAD','OFFROAD','RALLY','HOT_WHEELS'];
+const esc=x=>String(x??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+let garage=[],byId=new Map(),ready=false,active=null;
+function req(ok,msg){if(!ok)throw Error(msg);}
+function id(prefix){const a=new Uint32Array(2);crypto.getRandomValues(a);return prefix+'-'+a[0].toString(36)+'-'+a[1].toString(36);}
+function seed(){const a=new Uint32Array(1);crypto.getRandomValues(a);return a[0]||1;}
+function parseTime(value){const x=String(value||'').trim();req(/^\d{1,3}:[0-5]\d\.\d{3}$/.test(x),'Use MM:SS.mmm, for example 03:36.784');const [m,s,ms]=x.replace(':','.').split('.').map(Number),n=m*60000+s*1000+ms;req(n>=1000&&n<86400000,'Time outside valid range');return n;}
+function fmt(ms){return String(Math.floor(ms/60000)).padStart(2,'0')+':'+String(Math.floor(ms/1000)%60).padStart(2,'0')+'.'+String(ms%1000).padStart(3,'0');}
+function vehicles(){return garage.map(c=>({id:c.id,name:c.name,make:c.make,type:c.classType||'Unclassified'}));}
+function projected(teams){return teams.map(t=>({id:t.id,make:t.make||null,cars:t.cars.map(c=>c.id)}));}
+function frozen(kind,drawSeed){const cars=vehicles();if(kind==='relay-maker')return{teams:projected(donor.drawMakerRelay(cars,drawSeed)),leftovers:[]};const x=donor.drawMixedRelay(cars,drawSeed);return{teams:projected(x.teams),leftovers:x.leftovers.map(c=>c.id)};}
+function drawRoutes(category,drawSeed){const pool=globalThis.rhFH5TrackTaxonomy8067?.standardPool(category);req(Array.isArray(pool)&&pool.length>=3,'Missing usable FH5 route pool');const a=pool.slice();let h=(drawSeed^0xa5b33d91)>>>0;const out=[];for(let i=0;i<3;i++){h=Math.imul(h^h>>>16,2246822507)>>>0;h=Math.imul(h^h>>>13,3266489909)>>>0;const idx=h%a.length;out.push(a.splice(idx,1)[0]);}return out;}
+function entries(s){return s.teams.map(t=>({id:t.id,cars:t.cars.map(carId=>{const c=byId.get(carId);req(c,'Frozen Relay car missing from donor Garage');return {id:c.id,make:c.make,name:c.name};})}));}
+function current(s){const n=s.results.length,t=s.teams[Math.floor(n/3)];if(!t)return null;const stage=n%3+1;return{entryId:t.id,stage,carId:t.cars[stage-1],route:s.routes[stage-1],team:t,teamNumber:Math.floor(n/3)+1};}
+function ranks(s){return donor.scoreThreeStages(entries(s),s.results);}
+function podium(s){if(s.results.length!==s.teams.length*3)return null;const rows=ranks(s);if(rows.length<3||rows[0].total===rows[1].total||rows[1].total===rows[2].total||(rows.length>3&&rows[2].total===rows[3].total))return null;return rows.slice(0,3).map(r=>r.entryId);}
+function validate(s){req(ready&&donor?.scoreThreeStages,'Relay validator not ready');req(s?.format==='TET2_INSTANCE'&&s.schema===1&&['relay-maker','relay-mixed'].includes(s.kind),'Unknown Relay record');req(new RegExp('^'+(s.kind==='relay-maker'?'rm':'rx')+'-[a-z0-9-]{5,70}$').test(s.id),'Invalid Relay instance ID');req(Number.isInteger(s.seed)&&s.seed>0&&s.seed<=0xffffffff&&typeof s.createdAt==='string'&&CATS.includes(s.category),'Invalid Relay header');
+ const expected=frozen(s.kind,s.seed),routes=drawRoutes(s.category,s.seed);req(JSON.stringify(s.teams)===JSON.stringify(expected.teams)&&JSON.stringify(s.leftovers)===JSON.stringify(expected.leftovers),'Frozen Relay draw mismatch');req(JSON.stringify(s.routes)===JSON.stringify(routes),'Relay routes do not match draw');req(Array.isArray(s.results)&&s.results.length<=s.teams.length*3,'Invalid Relay results length');
+ const carIds=s.teams.flatMap(t=>t.cars),unique=new Set(carIds);req(unique.size===carIds.length,'A car appears on multiple teams');if(s.kind==='relay-mixed')req(s.teams.every(t=>new Set(t.cars.map(carId=>byId.get(carId)?.make)).size===3)&&unique.size+s.leftovers.length===garage.length,'Mixed Relay manufacturer/coverage invariants failed');else req(s.teams.every(t=>t.cars.every(carId=>byId.get(carId)?.make===t.make)),'Manufacturer Relay has mixed teams');
+ for(let i=0;i<s.results.length;i++){const r=s.results[i],t=s.teams[Math.floor(i/3)],stage=i%3+1;req(r&&r.entryId===t.id&&r.stage===stage&&r.carId===t.cars[stage-1]&&r.route===s.routes[stage-1]&&Number.isInteger(r.timeMs)&&r.timeMs>=1000&&r.timeMs<86400000,'Invalid or out-of-sequence Relay result '+(i+1));}
+ donor.scoreThreeStages(entries(s),s.results);return s;
+}
+function create(kind='relay-maker',category='ROAD'){req(ready&&CATS.includes(category)&&['relay-maker','relay-mixed'].includes(kind),'Relay engine not ready');const drawSeed=seed(),d=frozen(kind,drawSeed);req(d.teams.length>=3,'At least three teams required');const s={format:'TET2_INSTANCE',schema:1,kind,id:id(kind==='relay-maker'?'rm':'rx'),category,seed:drawSeed,createdAt:new Date().toISOString(),teams:d.teams,leftovers:d.leftovers,routes:drawRoutes(category,drawSeed),results:[]};reg.addInstance(s);return s.id;}
+function label(s,teamId){const n=s.teams.findIndex(t=>t.id===teamId);if(n<0)return teamId;const t=s.teams[n];return s.kind==='relay-maker'?t.make:`Mixed team ${n+1} · ${t.cars.map(cid=>byId.get(cid)?.make||'?').join(' / ')}`;}
+function status(s){if(!s)return{done:false,progress:'Missing Relay'};const p=podium(s);return{done:!!p,podium:p,progress:`${s.results.length}/${s.teams.length*3} leg times · ${s.teams.length} teams${s.results.length===s.teams.length*3&&!p?' · podium tie': ''}`,label:s.kind==='relay-maker'?'Manufacturer Relay':'Mixed Relay',leftovers:s.leftovers.length};}
+function notice(msg,bad=false){$('relayInstNotice').textContent=msg;$('relayInstNotice').className=bad?'status-warn':'status-ok';}
+function render(){if(!active||!ready)return;const s=reg.getInstance(active);if(!s)return;try{
+ const next=current(s),p=podium(s),n=s.results.length,max=s.teams.length*3,kind=s.kind==='relay-maker'?'MANUFACTURER RELAY':'MIXED RELAY';
+ $('relayInstTitle').textContent=next?`${kind} · TEAM ${next.teamNumber}/${s.teams.length} · LEG ${next.stage}/3`:(p?'🏆 '+kind+' COMPLETE':'ALL TIMES ENTERED — PODIUM TIE');
+ $('relayInstMeta').textContent=`${s.category} · ${n}/${max} times · ${s.teams.length} teams · ${s.leftovers.length} unassigned cars · ${s.id}`;
+ if(next){const car=byId.get(next.carId);$('relayInstPanel').innerHTML=`<div class="route-feature"><small>🏁 ${esc(kind)} · LEG ${next.stage} / 3 · ALL TEAMS USE SAME ROUTE FOR THIS LEG</small><strong>${esc(next.route)}</strong></div><h3>${esc(label(s,next.entryId))}</h3><p class="live-big">${esc(car?.name||next.carId)}</p><p class="dim">Enter this car's leg time; next car is prepared automatically.</p><div class="live-flex"><input id="relayInstTime" inputmode="decimal" type="text" autocomplete="off" placeholder="03:36.784" aria-label="Relay time in MM:SS.mmm"><button class="action" id="relayInstBank">BANK TIME → NEXT CAR</button></div>`;$('relayInstBank').onclick=bank;$('relayInstTime').onkeydown=e=>{if(e.key==='Enter')bank();};}
+ else if(p){$('relayInstPanel').innerHTML=`<p class="live-big">🥇 ${esc(label(s,p[0]))}</p><p>🥈 ${esc(label(s,p[1]))}</p><p>🥉 ${esc(label(s,p[2]))}</p><p class="flag">🛑 STOP HERE, YOU FUCKWIT!</p>`;}
+ else $('relayInstPanel').innerHTML='<p class="status-warn">All cars have raced but the medal positions are tied. The podium remains unawarded; inspect times and correct the result using Undo.</p>';
+ const table=ranks(s);$('relayInstStandings').innerHTML='<table class="mini-table"><thead><tr><th>Pos</th><th>Team</th><th>Legs</th><th>Total</th></tr></thead><tbody>'+table.slice(0,25).map(t=>`<tr><td>${t.place||'—'}</td><td>${esc(label(s,t.entryId))}</td><td>${t.stages.filter(x=>x!==null).length}/3</td><td>${t.total===null?'—':fmt(t.total)}</td></tr>`).join('')+'</tbody></table>'+(table.length>25?`<p class="dim">Top 25 shown of ${table.length} teams.</p>`:'');
+ $('relayInstHistory').innerHTML=s.results.slice(-9).map(r=>`<div class="car"><small>${esc(label(s,r.entryId))} · LEG ${r.stage} · ${esc(r.route)}</small><strong>${esc(byId.get(r.carId)?.name||r.carId)} — ${fmt(r.timeMs)}</strong></div>`).join('')||'<p class="dim">No recorded times yet.</p>';
+ $('relayInstUndo').disabled=!n;
+ }catch(e){notice('Relay display issue: '+e.message,true);}}
+function open(eventId){req(ready&&reg.getInstance(eventId)?.kind?.startsWith('relay-'),'Not an independent Relay');active=eventId;globalThis.tet2Navigate('instance-relay');render();}
+function bank(){try{const s=reg.getInstance(active),x=current(s);req(x,'Relay has no further legs');const timeMs=parseTime($('relayInstTime').value);reg.saveInstance(s.id,{...s,results:[...s.results,{entryId:x.entryId,stage:x.stage,carId:x.carId,route:x.route,timeMs}]});notice('Time saved. Next car ready.');}catch(e){notice('Result rejected: '+e.message,true);}}
+function undo(){const s=reg.getInstance(active);if(!s?.results.length)return;if(!confirm('Undo the latest recorded leg in THIS Relay only?'))return;try{reg.saveInstance(s.id,{...s,results:s.results.slice(0,-1)});notice('Latest leg undone.');}catch(e){notice('Undo refused: '+e.message,true);}}
+$('relayInstUndo').onclick=undo;$('relayInstBack').onclick=()=>globalThis.tet2Navigate('list');
+let ticks=0;const timer=setInterval(()=>{if(globalThis.tet2Garage?.length){clearInterval(timer);try{garage=globalThis.tet2Garage;byId=new Map(garage.map(c=>[c.id,c]));req(garage.length===704,'Donor Garage snapshot differs from engineering field');req(donor?.drawMakerRelay&&donor?.drawMixedRelay&&donor?.scoreThreeStages,'Missing genuine OTG! Evil 2.0 Relay rules');ready=true;reg.registerInstanceValidator('relay-maker',validate);reg.registerInstanceValidator('relay-mixed',validate);reg.subscribe(()=>{if(active)render();});notice('Manufacturer and Mixed Relay engines ready.');}catch(e){notice('Relay engine unavailable: '+e.message,true);}}else if(++ticks>150){clearInterval(timer);notice('Garage unavailable',true);}},50);
+globalThis.TET2RelayInstances={create,open,status,validate,label,rank:ranks,get ready(){return ready;}};
+})();
