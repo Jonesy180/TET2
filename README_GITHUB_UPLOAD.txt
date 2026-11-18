@@ -1,4 +1,4 @@
-TET2 v0.23 — GITHUB-SAFE FIRST PHONE QA (ENGINEERING ONLY)
+TET2 v0.24 — GITHUB PHONE NUMERIC-TIME FIX (ENGINEERING ONLY)
 
 THE FILES IN THIS ZIP ARE INTENDED FOR A PUBLICLY SERVED GITHUB PAGES SITE.
 They contain app source, competition engines, routes, and generic TET2 icon graphics.
@@ -44,3 +44,19 @@ IMPORTANT SAFETY / LIMITATIONS
 - The app can import this 704-car collection only in v0.23; changing car ownership
   later requires a safe, versioned Garage-update workflow, not forcing a new file.
 - OTG! remains untouched; TET2 stores its own data separately.
+
+
+v0.24 PHONE-KEYBOARD HOTFIX (NO RESET):
+- Android numeric keyboards often do not offer a colon or full stop. TET2 now accepts
+  pure digits in ALL timed results fields, including new Race Off/Festival/Swiss/
+  Relay/Gauntlet/Drag and the older engineering harnesses.
+- Type 0336784 for 03:36.784. Type 0337210 for 03:37.210.
+  The punctuation is added when leaving the field and all existing time validators
+  keep enforcing real valid race times. Existing colon-and-dot paste still works.
+- Update the SAME GitHub repository, with ALL files from the v0.24 ZIP including
+  time-entry.js. Do not change site URL or clear site data. The existing private
+  Garage, IndexedDB records, race draws and preflight status are retained.
+- After uploading, reload your GitHub Pages site. Check the home header reads 0.24
+  before entering a disposable race result. Back up TET2 privately before QA.
+- This fixes race TIME fields only. Long Jump DISTANCE still accepts decimals.
+- Do NOT upload personal Garage JSON or original photos.
