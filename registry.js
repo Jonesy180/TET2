@@ -30,7 +30,7 @@ function checkHeader(x){
  if(!x||x.format!=='TET2_REGISTRY'||x.schema!==1||!x.events||typeof x.events!=='object'||Array.isArray(x.events))throw Error('Unsupported registry version');
  if(Object.keys(x.events).some(k=>!SLOT_IDS.includes(k)))throw Error('Unexpected competition ID');
  if(x.instances!==undefined&&(typeof x.instances!=='object'||!x.instances||Array.isArray(x.instances)||Object.keys(x.instances).length>MAX_INSTANCES))throw Error('Invalid instance registry');
- if(x.instances&&Object.keys(x.instances).some(k=>!/^(ro|fe|sw|rm|rx|gm|gt|ds|dk|dg)-[a-z0-9-]{5,70}$/.test(k)))throw Error('Malformed competition instance ID');
+ if(x.instances&&Object.keys(x.instances).some(k=>!/^(ro|fe|sw|rm|rx|gm|gt|ds|dk|dg|sc)-[a-z0-9-]{5,70}$/.test(k)))throw Error('Malformed competition instance ID');
  if(x.plan!==undefined)validatePlan(x.plan,x.instances||{});
 }
 function read(){const result=window.TET2Persistence.load();checkHeader(result);if(!result.instances)result.instances={};result.plan=validatePlan(result.plan||blankPlan(),result.instances);return result;}

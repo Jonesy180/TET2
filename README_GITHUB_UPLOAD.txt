@@ -1,62 +1,57 @@
-TET2 v0.24 — GITHUB PHONE NUMERIC-TIME FIX (ENGINEERING ONLY)
+TET2 v0.25 — SECOND CHANCE CUP FORMAT PILOT (GITHUB-SAFE ENGINEERING)
 
-THE FILES IN THIS ZIP ARE INTENDED FOR A PUBLICLY SERVED GITHUB PAGES SITE.
-They contain app source, competition engines, routes, and generic TET2 icon graphics.
-They DO NOT contain Andy's owned-car Garage JSON, source photos, or racing backups.
+EXISTING REPO UPDATE — NO CLONING AGAIN
+1. Keep the recent TET2 recovery JSON you exported privately from your phone.
+2. Extract this ZIP. Copy ALL its contents into your ALREADY CLONED TET2
+   repository folder, replacing existing files. DO NOT delete the .git folder.
+3. Open that TET2 folder in VS Code, then Terminal > New Terminal. Run:
+      git add -A
+      git commit -m "TET2 v0.25 Second Chance Cup Pilot"
+      git push origin main
+4. Open the same TET2 Pages URL on your phone and refresh. The small header
+   should say 0.25. Do NOT reinstall, clear browsing/site storage, or reimport
+   your Garage. Leave OTG! untouched.
 
-UPLOAD TO GITHUB
-1. Create/use a SEPARATE TET2 repository, not the public OTG! repository.
-2. Unzip this archive. Upload the contents of the extracted folder to the site root,
-   including index.html, *.js, tet2.css, manifest.webmanifest and icons/.
-3. Enable GitHub Pages for the chosen branch and site root (or use the existing
-   OTG! workflow, but publish this repository separately).
-4. Open the HTTPS Pages URL on your phone. Choose Add to Home Screen as usual;
-   the app's short label is TET2.
+WHAT'S NEW:
+- Independent 16-car SECOND CHANCE CUP engineering pilot.
+- Four groups of four; one recorded run per car on the SAME route for that group;
+  fastest in each group qualifies for knockout.
+- Two semifinal matches, ONE bronze medal duel between semifinal losers BEFORE
+  the final, then gold/silver in the final. 16 solo times + 4 knockout matches.
+- All timed inputs support digits only: 0336784 becomes 03:36.784.
+- Equal fastest group times are a safe stop; correct a saved group time BEFORE
+  semifinals. Tied knockout times require a rerun; no result is banked.
+- Every result uses the current private TET2 per-event IndexedDB registry and
+  participates in unified backup, Evil List, Race Control and medal reporting.
+- Undo removes only this Cup's latest saved result.
+- Competition HQ now has a real button to RACE CONTROL; Race Control lists the
+  next independent events and opens them directly instead of offering only an
+  aggregate count and a confusing legacy Race Off button.
 
-FIRST-RUN GARAGE IMPORT — ON PHONE, NOT IN GITHUB REPOSITORY
-5. On the first visit, the app will request one private FH5 Garage JSON.
-   Choose the original OTG-PORTABLE-BACKUP-2026-11-17T17-43-34-348Z.json,
-   or the earlier TET2_FH5_Garage_Donor_704cars.json.
-6. The app extracts and validates exactly 704 FH5 cars / 123 manufacturers,
-   stores them in TET2_GARAGE_PRIVATE_V1 IndexedDB, and verifies readback.
-   It imports NO past OTG racing results. This frozen engineering collection
-   can NOT be replaced by a different collection in this build.
-7. On the home page select PRIVATE PHONE PREFLIGHT; run the first read-only test.
-   Then WRITE MARKER, reload the app, VERIFY AFTER RELOAD, and DELETE MARKER.
-8. Export a complete TET2 backup in the RECOVERY screen and keep that file PRIVATE.
-   Only after the above tests pass, create ONE disposable engineering event and
-   check the List/Results/Race Control connection. Not official racing yet.
+IMPORTANT: THIS IS ONLY A FORMAT PILOT, NOT QUALIFICATION IMPLEMENTATION.
+The 16 cars are uniquely selected at random from your privately imported Garage
+and are explicitly PROVISIONAL. They are not real Second Chance qualifiers.
+Eligibility/source-competition rules and the full official running order are
+NOT finalised. Do not begin the real Evil Tournament with this build.
 
-IMPORTANT SAFETY / LIMITATIONS
-- GitHub Pages makes SITE CONTENT PUBLIC; do not publish an OTG backup, Garage JSON,
-  private results, source family photos, or any personally sensitive media.
-- TET2 local IndexedDB is not uploaded by GitHub. It is bound to browser ORIGIN;
-  another browser/profile/device or different domain won't automatically have it.
-- Different GitHub Pages repository PATHS on the same username.github.io host
-  share the SAME browser security origin. Database names are separate but this is
-  not a security boundary. Use a separate host/custom domain for stronger separation.
-- Imported Gallery/3D art MAY be publicly visible once committed. No family artwork
-  is included in v0.23; cartoon illustrations will be a later design phase.
-- No automatic service worker or update cache is installed in v0.23. A browser
-  connection is required to load the app; this avoids auto-update loop risks.
-- Production-scale performance, full native donor event controllers and REAL phone
-  IndexedDB/Web Crypto have NOT YET BEEN CERTIFIED. Do not begin official Slot 001.
-- The app can import this 704-car collection only in v0.23; changing car ownership
-  later requires a safe, versioned Garage-update workflow, not forcing a new file.
-- OTG! remains untouched; TET2 stores its own data separately.
+PRIVACY:
+This ZIP contains application source files, generic icons, and public FH5
+route names. It contains NO owned Garage JSON, original family photos or real
+racing-result backups. GitHub Pages makes these code files publicly readable;
+NEVER commit your OTG portable backup, imported Garage JSON, or TET2 backup.
+Your currently imported 704-car Garage stays in the phone's existing local
+TET2_GARAGE_PRIVATE_V1 IndexedDB. Results use existing TET2 storage. A ZIP
+update cannot by itself guarantee data permanence; preserve private backups.
+Different GitHub Pages repository paths on the same hostname are NOT an
+independent browser security boundary; use a separate domain for stronger
+isolation if desired. No service worker or automatic cache is installed.
 
-
-v0.24 PHONE-KEYBOARD HOTFIX (NO RESET):
-- Android numeric keyboards often do not offer a colon or full stop. TET2 now accepts
-  pure digits in ALL timed results fields, including new Race Off/Festival/Swiss/
-  Relay/Gauntlet/Drag and the older engineering harnesses.
-- Type 0336784 for 03:36.784. Type 0337210 for 03:37.210.
-  The punctuation is added when leaving the field and all existing time validators
-  keep enforcing real valid race times. Existing colon-and-dot paste still works.
-- Update the SAME GitHub repository, with ALL files from the v0.24 ZIP including
-  time-entry.js. Do not change site URL or clear site data. The existing private
-  Garage, IndexedDB records, race draws and preflight status are retained.
-- After uploading, reload your GitHub Pages site. Check the home header reads 0.24
-  before entering a disposable race result. Back up TET2 privately before QA.
-- This fixes race TIME fields only. Long Jump DISTANCE still accepts decimals.
-- Do NOT upload personal Garage JSON or original photos.
+QA STATUS (ENGINEERING, NOT PHONE APPROVAL):
+- JS syntax, source asset manifest, and ZIP integrity checked.
+- Deterministic engine tests: provisional 16 unique entrants; 4×4 group phase;
+  20 sequential records; semifinals; bronze-before-final; podium; invalid
+  result detection; group tie blocking/correction; undo — passed.
+- Phone live test for this NEW v0.25 feature is PENDING. Existing v0.24
+  Race Off and private IndexedDB workflow previously passed on the user's phone.
+- Browser HTTP QA was blocked by the execution environment's administrator;
+  no live website or actual phone test is claimed for v0.25.
