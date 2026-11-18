@@ -37,7 +37,25 @@ $('gntInstMode').onchange=fillGauntletOptions;
 $('gntInstCreate').onclick=()=>{try{const id=globalThis.TET2Gauntlets.create($('gntInstMode').value,$('gntInstGroup').value);$('draftNotice').textContent='Independent '+$('gntInstMode').selectedOptions[0].text+' Gauntlet created: '+id;viewOffset=Math.floor((reg.getPlan().slots.length-1)/60)*60;}catch(e){$('draftNotice').textContent='Gauntlet creation refused: '+e.message;}};
 $('driftInstCreate').onclick=()=>{try{const id=globalThis.TET2Drift.create(Number($('driftInstSize').value));$('draftNotice').textContent='Independent Drift Score engineering competition created: '+id;viewOffset=Math.floor((reg.getPlan().slots.length-1)/60)*60;}catch(e){$('draftNotice').textContent='Drift creation refused: '+e.message;}};
 $('driftKOCreate').onclick=()=>{try{const id=globalThis.TET2Specialists.create('drift-knockout',Number($('driftKOSize').value));$('draftNotice').textContent='Drift Knockout created: '+id;viewOffset=Math.floor((reg.getPlan().slots.length-1)/60)*60;}catch(e){$('draftNotice').textContent='Drift Knockout refused: '+e.message;}};
-$('scCreate').onclick=()=>{try{const id=globalThis.TET2SecondChance.create($('scCategory').value);$('draftNotice').textContent='PROVISIONAL Second Chance Cup created: '+id+' — random Garage entrants, NOT official qualifiers.';viewOffset=Math.floor((reg.getPlan().slots.length-1)/60)*60;}catch(e){$('draftNotice').textContent='Second Chance pilot refused: '+e.message;}};
+// v0.26: the previous 0.25 page could retain an older cached boot.js, leaving
+// TET2SecondChance undefined. Keep errors adjacent to the tapped button.
+function scCreateMessage(text,bad=false){const target=$('scCreateNotice');if(target){target.textContent=text;target.className=bad?'status-warn':'status-ok';}}
+$('scCreate').onclick=()=>{const btn=$('scCreate');btn.disabled=true;try{
+ const api=globalThis.TET2SecondChance;
+ if(!api||typeof api.create!=='function')throw Error('Second Chance module not loaded. Re-upload all v0.26 files, including instance-second-chance.js and boot.js, then refresh.');
+ if(!api.ready)throw Error('Second Chance engine is still starting or unavailable. Check the message above.');
+ const id=api.create($('scCategory').value);
+ scCreateMessage('✅ Provisional Cup created and added to Evil List. Opening Group A…');
+ $('draftNotice').textContent='PROVISIONAL Second Chance Cup created: '+id+' — not official qualifiers.';
+ viewOffset=Math.max(0,Math.floor((reg.getPlan().slots.length-1)/60)*60);
+ api.open(id); // Always show the result of tapping Create; never silently leave the user on List.
+ }catch(e){scCreateMessage('⛔ Cup creation refused: '+e.message,true);$('draftNotice').textContent='Second Chance pilot refused: '+e.message;}
+ finally{btn.disabled=false;}};
+// Availability hint directly below Create; failure never touches the registry.
+const scAvailability=setInterval(()=>{const api=globalThis.TET2SecondChance;if(!api)return;
+ if(api.ready){clearInterval(scAvailability);if($('scCreateNotice').textContent==='Checking Cup engine…'){$('scCreateNotice').textContent='✅ Cup engine ready. Provisional entrants only.';$('scCreateNotice').className='status-ok';}}
+ },100);
+setTimeout(()=>{clearInterval(scAvailability);if($('scCreateNotice').textContent==='Checking Cup engine…')scCreateMessage('⛔ Cup module unavailable. Check the v0.26 GitHub upload and refresh.',true);},8000);
 $('dragCreate').onclick=()=>{try{const id=globalThis.TET2Specialists.create('drag-shootout',Number($('dragSize').value));$('draftNotice').textContent='Drag Shootout created: '+id;viewOffset=Math.floor((reg.getPlan().slots.length-1)/60)*60;}catch(e){$('draftNotice').textContent='Drag Shootout refused: '+e.message;}};
 let gntOptionTimer=setInterval(()=>{if(globalThis.TET2Gauntlets?.ready){clearInterval(gntOptionTimer);fillGauntletOptions();}},80);
 $('makeJumpBatches').onclick=()=>{try{const n=reg.addJumpBatches(Number($('jumpBatchSize').value));$('draftNotice').textContent=`Added ${n} independent schedule GROUPS linked to ONE global 704-car competition. No extra podiums.`;}catch(e){$('draftNotice').textContent='Batch setup refused: '+e.message;}};

@@ -1,57 +1,40 @@
-TET2 v0.25 — SECOND CHANCE CUP FORMAT PILOT (GITHUB-SAFE ENGINEERING)
+TET2 ENGINEERING v0.26 — SECOND CHANCE CUP LOAD FIX (GITHUB-SAFE)
 
-EXISTING REPO UPDATE — NO CLONING AGAIN
-1. Keep the recent TET2 recovery JSON you exported privately from your phone.
-2. Extract this ZIP. Copy ALL its contents into your ALREADY CLONED TET2
-   repository folder, replacing existing files. DO NOT delete the .git folder.
-3. Open that TET2 folder in VS Code, then Terminal > New Terminal. Run:
-      git add -A
-      git commit -m "TET2 v0.25 Second Chance Cup Pilot"
-      git push origin main
-4. Open the same TET2 Pages URL on your phone and refresh. The small header
-   should say 0.25. Do NOT reinstall, clear browsing/site storage, or reimport
-   your Garage. Leave OTG! untouched.
+REAL PHONE ISSUE (Nov 18, 2026): tapping CREATE PROVISIONAL CUP had no
+visible effect; the app reported "Cannot read properties of undefined
+(reading 'create')" in a message far down the Evil List. Race Off still
+worked. The 0.25 page was displayed, but its Second Chance module was not
+available at the time of the click. This is compatible with an outdated
+cached boot.js (v0.24 lacks the new module), or a missing/failed deployment
+of instance-second-chance.js. The phone screenshot alone cannot prove which.
 
-WHAT'S NEW:
-- Independent 16-car SECOND CHANCE CUP engineering pilot.
-- Four groups of four; one recorded run per car on the SAME route for that group;
-  fastest in each group qualifies for knockout.
-- Two semifinal matches, ONE bronze medal duel between semifinal losers BEFORE
-  the final, then gold/silver in the final. 16 solo times + 4 knockout matches.
-- All timed inputs support digits only: 0336784 becomes 03:36.784.
-- Equal fastest group times are a safe stop; correct a saved group time BEFORE
-  semifinals. Tied knockout times require a rerun; no result is banked.
-- Every result uses the current private TET2 per-event IndexedDB registry and
-  participates in unified backup, Evil List, Race Control and medal reporting.
-- Undo removes only this Cup's latest saved result.
-- Competition HQ now has a real button to RACE CONTROL; Race Control lists the
-  next independent events and opens them directly instead of offering only an
-  aggregate count and a confusing legacy Race Off button.
+FIXES:
+* All entry-point assets and dynamically loaded modules have a build=026
+  query parameter, so a newer HTML cannot quietly reuse an old boot.js.
+* Create button now shows readiness/errors DIRECTLY under the button.
+* When a Cup successfully creates, opens that Cup's Group A immediately.
+* Missing module never creates a phantom schedule slot. All other racing
+  features remain usable (no unnecessary reset or global safe-stop).
+* No changes to IndexedDB database names, the Garage schema, race formats,
+  or saved competition data. Official Second Chance qualifying rules and
+  running order are NOT finalised; the Cup is a provisional FORMAT PILOT.
 
-IMPORTANT: THIS IS ONLY A FORMAT PILOT, NOT QUALIFICATION IMPLEMENTATION.
-The 16 cars are uniquely selected at random from your privately imported Garage
-and are explicitly PROVISIONAL. They are not real Second Chance qualifiers.
-Eligibility/source-competition rules and the full official running order are
-NOT finalised. Do not begin the real Evil Tournament with this build.
+INSTALL IN SAME TET2 GITHUB REPOSITORY; NEVER CLONE OR CLEAR SITE DATA AGAIN:
+1. Extract this ZIP and copy ALL application files into your already-cloned
+   Documents/TET2 Git repository folder, replacing old files. Do NOT touch
+   the hidden .git directory. Ensure instance-second-chance.js and boot.js
+   appear in the repository root alongside index.html.
+2. VS Code → Terminal → New Terminal:
+       git add -A
+       git commit -m "TET2 v0.26 Second Chance phone load fix"
+       git push origin main
+3. Open your normal GitHub Pages URL on the same phone, refresh, confirm
+   version 0.26 and the green Cup-engine-ready message below Create.
+4. Press Create ONCE. It should open Group A / Car 1 of 4 automatically.
+   Do not enter times until the visible 16-car draw has been checked.
+5. Keep previous private recovery JSON safe. Do NOT import/reinstall/clear.
 
-PRIVACY:
-This ZIP contains application source files, generic icons, and public FH5
-route names. It contains NO owned Garage JSON, original family photos or real
-racing-result backups. GitHub Pages makes these code files publicly readable;
-NEVER commit your OTG portable backup, imported Garage JSON, or TET2 backup.
-Your currently imported 704-car Garage stays in the phone's existing local
-TET2_GARAGE_PRIVATE_V1 IndexedDB. Results use existing TET2 storage. A ZIP
-update cannot by itself guarantee data permanence; preserve private backups.
-Different GitHub Pages repository paths on the same hostname are NOT an
-independent browser security boundary; use a separate domain for stronger
-isolation if desired. No service worker or automatic cache is installed.
-
-QA STATUS (ENGINEERING, NOT PHONE APPROVAL):
-- JS syntax, source asset manifest, and ZIP integrity checked.
-- Deterministic engine tests: provisional 16 unique entrants; 4×4 group phase;
-  20 sequential records; semifinals; bronze-before-final; podium; invalid
-  result detection; group tie blocking/correction; undo — passed.
-- Phone live test for this NEW v0.25 feature is PENDING. Existing v0.24
-  Race Off and private IndexedDB workflow previously passed on the user's phone.
-- Browser HTTP QA was blocked by the execution environment's administrator;
-  no live website or actual phone test is claimed for v0.25.
+IMPORTANT: ZIP CONTAINS NO PRIVATE FH5 GARAGE, PLAYER RESULTS, OR FAMILY PHOTOS.
+DO NOT UPLOAD THE ORIGINAL OTG! BACKUP OR YOUR PRIVATE TET2 JSON TO GITHUB.
+GitHub Pages repository paths on the same hostname are not separate origins.
+This build has only local static syntax/regression tests; actual-phone QA is pending.
